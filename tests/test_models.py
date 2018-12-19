@@ -109,8 +109,7 @@ class SelectMultipleFieldTestCase(SimpleTestCase):
 
         self.assertEqual(
             cm.exception.messages[0],
-            (SelectMultipleField.default_error_messages['invalid_choice']
-                % {'value': invalid_list[0]})
+            SelectMultipleField.default_error_messages['invalid_choice'].format(invalid_list[0])
         )
 
     def test_to_python_empty_string(self):
@@ -144,8 +143,8 @@ class SelectMultipleFieldTestCase(SimpleTestCase):
 
         self.assertEqual(
             cm.exception.messages[0],
-            (SelectMultipleField.default_error_messages['invalid_type']
-                % {'value': type(invalid_type)}))
+            SelectMultipleField.default_error_messages['invalid_type'].format(type(invalid_type))
+        )
 
     def test_get_choices(self):
         """Overridden get_choices suppresses blank choice tuple"""
@@ -216,8 +215,7 @@ class SelectMultipleFieldTestCase(SimpleTestCase):
 
         self.assertEqual(
             cm.exception.messages[0],
-            (SelectMultipleField.default_error_messages['invalid_choice']
-                % {'value': value})
+            SelectMultipleField.default_error_messages['invalid_choice'].format(value)
         )
 
     def test_validate_invalid_string(self):
@@ -230,8 +228,7 @@ class SelectMultipleFieldTestCase(SimpleTestCase):
 
         self.assertEqual(
             cm.exception.messages[0],
-            (SelectMultipleField.default_error_messages['invalid_choice']
-                % {'value': value})
+            SelectMultipleField.default_error_messages['invalid_choice'].format(value)
         )
 
     def test_validate_not_null(self):
@@ -283,8 +280,7 @@ class SelectMultipleFieldTestCase(SimpleTestCase):
 
         self.assertEqual(
             cm.exception.messages[0],
-            (SelectMultipleField.default_error_messages['invalid_choice']
-                % {'value': value[0]})
+            SelectMultipleField.default_error_messages['invalid_choice'].format(value[0])
         )
 
     def test_validate_option_choice_true(self):

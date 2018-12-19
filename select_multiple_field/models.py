@@ -26,8 +26,8 @@ class SelectMultipleField(models.Field):
 
     default_error_messages = {
         'blank': _("This field cannot be blank."),
-        'invalid_type': _("Types passed as value must be string, list, tuple or None, not '{value}'."),
-        'invalid_choice': _("Select a valid choice. {value} is not one of the available choices."),
+        'invalid_type': _("Types passed as value must be string, list, tuple or None, not '{}'."),
+        'invalid_choice': _("Select a valid choice. {} is not one of the available choices."),
         'null': _("This field cannot be null."),
     }
     description = _('Select multiple field')
@@ -83,7 +83,7 @@ class SelectMultipleField(models.Field):
             native = decode_csv_to_list(value)
             return native
 
-        msg = self.error_messages['invalid_type'].format({'value': type(value)})
+        msg = self.error_messages['invalid_type'].format(type(value))
         raise exceptions.ValidationError(msg)
 
     def get_prep_value(self, value):
@@ -159,10 +159,10 @@ class SelectMultipleField(models.Field):
                 if len(bad_values) == 0:
                     return
                 else:
-                    msg = self.error_messages['invalid_choice'].format({'value': bad_values})
+                    msg = self.error_messages['invalid_choice'].format(bad_values)
                     raise exceptions.ValidationError(msg)
 
-            msg = self.error_messages['invalid_choice'].format({'value': value})
+            msg = self.error_messages['invalid_choice'].format(value)
             raise exceptions.ValidationError(msg)
 
         if value is None and not self.null:
@@ -181,7 +181,7 @@ class SelectMultipleField(models.Field):
         """
         for option in value:
             if not self.validate_option(option):
-                msg = self.error_messages['invalid_choice'].format({'value': option})
+                msg = self.error_messages['invalid_choice'].format(option)
                 raise exceptions.ValidationError(msg)
 
         return

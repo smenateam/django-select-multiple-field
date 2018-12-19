@@ -76,15 +76,15 @@ class SelectMultipleFormField(fields.MultipleChoiceField):
         """
         Prepares a string for use in serializer
         """
-        delimiter = getattr(
-            settings, 'SELECTMULTIPLEFIELD_DELIMITER', DEFAULT_DELIMITER)
-        if isinstance(value, (list, tuple)):
-            if len(value) == 0:
-                return ''
-            else:
-                return delimiter.join(value)
+        delimiter = getattr(settings, 'SELECTMULTIPLEFIELD_DELIMITER', DEFAULT_DELIMITER)
+
+        if isinstance(value, (list, tuple)) and len(value) != 0:
+            return delimiter.join(value)
 
         return ''
+
+    def prepare_value(self, value):
+        return decode_csv_to_list(value)
 
     def widget_attrs(self, widget):
         """
