@@ -12,23 +12,22 @@ from .codecs import decode_csv_to_list, encode_list_to_csv
 from .validators import MaxChoicesValidator, MaxLengthValidator
 import select_multiple_field.forms as forms
 
+UNDERSTANDABLE_FIELDS = (
+    'coerce', 'empty_value', 'choices', 'required', 'widget', 'label', 'initial', 'help_text', 'error_messages',
+    'show_hidden_initial'
+)
 
 DEFAULT_DELIMITER = ','
 
 
 @python_2_unicode_compatible
-class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
-                                             models.Field)):
+class SelectMultipleField(models.Field):
     """Stores multiple selection choices as serialized list"""
 
     default_error_messages = {
         'blank': _("This field cannot be blank."),
-        'invalid_type': _(
-            "Types passed as value must be string, list, tuple or None, "
-            "not '%(value)s'."),
-        'invalid_choice': _(
-            "Select a valid choice. %(value)s is not one of the available "
-            "choices."),
+        'invalid_type': _("Types passed as value must be string, list, tuple or None, not '{value}'."),
+        'invalid_choice': _("Select a valid choice. {value} is not one of the available choices."),
         'null': _("This field cannot be null."),
     }
     description = _('Select multiple field')
@@ -48,11 +47,12 @@ class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
         super(SelectMultipleField, self).__init__(*args, **kwargs)
 
         self.validators.append(MaxLengthValidator(self.max_length))
+
         if hasattr(self, 'max_choices'):
             self.validators.append(MaxChoicesValidator(self.max_choices))
 
     def __str__(self):
-        return "%s" % force_text(self.description)
+        return "{}".format(force_text(self.description))
 
     def get_internal_type(self):
         return "CharField"
@@ -83,7 +83,7 @@ class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
             native = decode_csv_to_list(value)
             return native
 
-        msg = self.error_messages['invalid_type'] % {'value': type(value)}
+        msg = self.error_messages['invalid_type'].format({'value': type(value)})
         raise exceptions.ValidationError(msg)
 
     def get_prep_value(self, value):
@@ -159,11 +159,10 @@ class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
                 if len(bad_values) == 0:
                     return
                 else:
-                    msg = self.error_messages['invalid_choice'] % {
-                        'value': bad_values}
+                    msg = self.error_messages['invalid_choice'].format({'value': bad_values})
                     raise exceptions.ValidationError(msg)
 
-            msg = self.error_messages['invalid_choice'] % {'value': value}
+            msg = self.error_messages['invalid_choice'].format({'value': value})
             raise exceptions.ValidationError(msg)
 
         if value is None and not self.null:
@@ -182,7 +181,7 @@ class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
         """
         for option in value:
             if not self.validate_option(option):
-                msg = self.error_messages['invalid_choice'] % {'value': option}
+                msg = self.error_messages['invalid_choice'].format({'value': option})
                 raise exceptions.ValidationError(msg)
 
         return
@@ -220,9 +219,11 @@ class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
 
         Returns select_multiple_field.forms.SelectMultipleFormField
         """
-        defaults = {'required': not self.blank,
-                    'label': capfirst(self.verbose_name),
-                    'help_text': self.help_text}
+        defaults = {
+            'required': not self.blank,
+            'label': capfirst(self.verbose_name),
+            'help_text': self.help_text
+        }
         if self.has_default():
             if callable(self.default):
                 defaults['initial'] = self.default
@@ -244,32 +245,11 @@ class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
             # max_value) don't apply for choice fields, so be sure to only pass
             # the values that SelectMultipleFormField will understand.
             for k in kwargs.keys():
-                if k not in ('coerce', 'empty_value', 'choices', 'required',
-                             'widget', 'label', 'initial', 'help_text',
-                             'error_messages', 'show_hidden_initial'):
+                if k not in UNDERSTANDABLE_FIELDS:
                     del kwargs[k]
 
         defaults.update(kwargs)
         return forms.SelectMultipleFormField(**defaults)
-
-    def south_field_triple(self):
-        try:
-            from south.modelsinspector import introspector
-        except ImportError:
-            pass
-        else:
-            cls_name = '{}.{}'.format(
-                self.__class__.__module__,
-                self.__class__.__name__)
-            args, kwargs = introspector(self)
-
-            if hasattr(self, 'max_choices'):
-                kwargs["max_choices"] = self.max_choices
-
-            if hasattr(self, 'include_blank'):
-                kwargs["include_blank"] = self.include_blank
-
-            return (cls_name, args, kwargs)
 
     def deconstruct(self):
         """
@@ -283,8 +263,7 @@ class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
             the positional arguments (an empty list in this case),
             the keyword arguments (as a dict).
         """
-        name, path, args, kwargs = super(
-            SelectMultipleField, self).deconstruct()
+        name, path, args, kwargs = super(SelectMultipleField, self).deconstruct()
 
         if hasattr(self, 'max_choices'):
             kwargs["max_choices"] = self.max_choices
@@ -292,9 +271,4 @@ class SelectMultipleField(six.with_metaclass(models.SubfieldBase,
         if hasattr(self, 'include_blank'):
             kwargs["include_blank"] = self.include_blank
 
-        return (
-            force_text(name, strings_only=True),
-            path,
-            args,
-            kwargs,
-        )
+        return force_text(name, strings_only=True), path, args, kwargs

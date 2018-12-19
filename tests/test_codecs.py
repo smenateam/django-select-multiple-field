@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 from django.test import SimpleTestCase
 
 from select_multiple_field.codecs import (
-    decode_csv_to_list, encode_list_to_csv)
+    decode_csv_to_list, encode_list_to_csv,
+)
 
 
 class CodecTestCase(SimpleTestCase):

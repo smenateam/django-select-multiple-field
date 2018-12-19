@@ -4,17 +4,9 @@ from __future__ import unicode_literals
 from django.forms import widgets
 from django.utils.safestring import mark_safe
 
-try:
-    from django.forms.utils import flatatt
-except ImportError:
-    from django.forms.util import flatatt
+from django.forms.utils import flatatt
 
-try:
-    from django.utils.html import format_html
-except ImportError:
-    def format_html(format_string, *args, **kwargs):
-        return format_string.format(*args, **kwargs)
-
+from django.utils.html import format_html
 
 HTML_ATTR_CLASS = 'select-multiple-field'
 
@@ -24,16 +16,18 @@ class SelectMultipleField(widgets.SelectMultiple):
 
     allow_multiple_selected = True
 
-    def render(self, name, value, attrs={}, choices=()):
+    def render(self, name, value, attrs=None, choices=()):
+        if attrs is None:
+            attrs = {}
+
         rendered_attrs = {'class': HTML_ATTR_CLASS}
         rendered_attrs.update(attrs)
         if value is None:
             value = []
 
-        final_attrs = self.build_attrs(rendered_attrs, name=name)
+        final_attrs = self.build_attrs(rendered_attrs)
         # output = [u'<select multiple="multiple"%s>' % flatatt(final_attrs)]
-        output = [format_html('<select multiple="multiple"{0}>',
-                              flatatt(final_attrs))]
+        output = [format_html('<select multiple="multiple"{0}>', flatatt(final_attrs))]
         options = self.render_options(choices, value)
         if options:
             output.append(options)
@@ -48,5 +42,4 @@ class SelectMultipleField(widgets.SelectMultiple):
 
         Returns list or None
         """
-        return super(SelectMultipleField, self).value_from_datadict(
-            data, files, name)
+        return super(SelectMultipleField, self).value_from_datadict(data, files, name)
