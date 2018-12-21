@@ -7,15 +7,12 @@ from django.forms import fields
 from django.utils import six
 
 from .codecs import decode_csv_to_list
-from .widgets import SelectMultipleField
 
 DEFAULT_DELIMITER = ','
 DEFAULT_MAX_CHOICES_ATTR = 'data-max-choices'
 
 
 class SelectMultipleFormField(fields.MultipleChoiceField):
-    widget = SelectMultipleField
-
     def __init__(
             self, max_length=None, size=4, max_choices=None,
             max_choices_attr=DEFAULT_MAX_CHOICES_ATTR,

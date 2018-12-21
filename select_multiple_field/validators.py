@@ -5,11 +5,7 @@ from django.core import validators
 from django.utils.encoding import force_text
 from django.utils.translation import ungettext_lazy
 
-try:
-    from django.utils.deconstruct import deconstructible
-except ImportError:
-    def deconstructible(x):
-        return x
+from django.utils.deconstruct import deconstructible
 
 from .codecs import encode_list_to_csv
 
