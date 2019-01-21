@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 DEFAULT_DELIMITER = ','
 
@@ -25,6 +26,9 @@ def encode_list_to_csv(decoded):
 
     Note: This sorts the list lexicographically
     """
+    if not isinstance(decoded, (list, tuple)):
+        raise ValidationError('Must be list of strings')
+
     delimiter = getattr(settings, 'SELECTMULTIPLEFIELD_DELIMITER', DEFAULT_DELIMITER)
     decoded = sorted(set(decoded))
 

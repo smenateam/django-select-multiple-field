@@ -7,10 +7,10 @@ from django.utils import six
 from django.utils.encoding import force_text, python_2_unicode_compatible
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
+from django.forms import fields
 
 from .codecs import decode_csv_to_list, encode_list_to_csv
-from .validators import MaxChoicesValidator, MaxLengthValidator
-import select_multiple_field.forms as forms
+from .validators import MaxLengthValidator
 
 UNDERSTANDABLE_FIELDS = (
     'coerce', 'empty_value', 'choices', 'required', 'widget', 'label', 'initial', 'help_text', 'error_messages',
@@ -47,9 +47,6 @@ class SelectMultipleField(models.Field):
         super(SelectMultipleField, self).__init__(*args, **kwargs)
 
         self.validators.append(MaxLengthValidator(self.max_length))
-
-        if hasattr(self, 'max_choices'):
-            self.validators.append(MaxChoicesValidator(self.max_choices))
 
     def __str__(self):
         return "{}".format(force_text(self.description))
@@ -243,9 +240,6 @@ class SelectMultipleField(models.Field):
             # convention
             include_blank = self.blank
             defaults['choices'] = self.get_choices(include_blank=include_blank)
-            defaults['coerce'] = self.to_python
-            if self.null:
-                defaults['empty_value'] = None
 
             # Many of the subclass-specific formfield arguments (min_value,
             # max_value) don't apply for choice fields, so be sure to only pass
@@ -255,7 +249,7 @@ class SelectMultipleField(models.Field):
                     del kwargs[k]
 
         defaults.update(kwargs)
-        return forms.SelectMultipleFormField(**defaults)
+        return fields.MultipleChoiceField(**defaults)
 
     def deconstruct(self):
         """
@@ -271,8 +265,6 @@ class SelectMultipleField(models.Field):
         """
         name, path, args, kwargs = super(SelectMultipleField, self).deconstruct()
 
-        if hasattr(self, 'max_choices'):
-            kwargs["max_choices"] = self.max_choices
 
         if hasattr(self, 'include_blank'):
             kwargs["include_blank"] = self.include_blank

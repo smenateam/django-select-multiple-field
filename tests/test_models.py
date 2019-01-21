@@ -11,7 +11,6 @@ from django.test import SimpleTestCase
 from django.utils import six
 
 from select_multiple_field.codecs import encode_list_to_csv
-from select_multiple_field.forms import SelectMultipleFormField
 from select_multiple_field.models import SelectMultipleField
 
 
@@ -48,11 +47,6 @@ class SelectMultipleFieldTestCase(SimpleTestCase):
     def test_instantiation(self):
         item = SelectMultipleField()
         self.assertIsInstance(item, Field)
-
-    def test_instantiation_max_choices(self):
-        for max_choices in range(25):
-            item = SelectMultipleField(max_choices=max_choices)
-            self.assertEqual(item.max_choices, max_choices)
 
     def test_instantiation_include_blank(self):
         item = SelectMultipleField(include_blank=False)
@@ -309,54 +303,3 @@ class SelectMultipleFieldTestCase(SimpleTestCase):
         self.assertEqual(len(choices), len(self.optgroup_choices_list))
         for n in choices:
             self.assertIn(n, self.optgroup_choices_list)
-
-    def test_formfield(self):
-        item = SelectMultipleField()
-        form = item.formfield()
-        self.assertIsInstance(form, SelectMultipleFormField)
-
-    def test_formfield_default_is_callable(self):
-        item = SelectMultipleField(default=FakeCallableDefault)
-        form = item.formfield()
-        self.assertIsInstance(form, SelectMultipleFormField)
-        self.assertTrue(item.has_default())
-        self.assertTrue(callable(form.initial))
-        self.assertIs(form.initial, FakeCallableDefault)
-
-    def test_formfield_default_string(self):
-        string_default = "String As Default"
-        item = SelectMultipleField(default=string_default)
-        form = item.formfield()
-        self.assertIsInstance(form, SelectMultipleFormField)
-        self.assertTrue(item.has_default())
-        self.assertEqual(item.get_default(), string_default)
-        self.assertEqual(form.initial, string_default)
-
-    def test_formfield_no_empty_value_by_default(self):
-        """
-        Formfield returns no empty value by default
-        """
-        item = SelectMultipleField(choices=self.choices)
-        form = item.formfield()
-        self.assertIsInstance(form, SelectMultipleFormField)
-        self.assertFalse(item.has_default())
-        self.assertEqual(form.coerce, item.to_python)
-        self.assertFalse(item.blank)
-        self.assertTrue(form.required)
-        self.assertFalse(item.null)
-        self.assertEqual(form.empty_value, [])
-        self.assertNotIn(BLANK_CHOICE_DASH[0], form.choices)
-
-    def test_formfield_empty_value_w_blank(self):
-        """
-        Formfield can return empty value, set ModelField.blank to True
-        """
-        item = SelectMultipleField(choices=self.choices, blank=True)
-        form = item.formfield()
-        self.assertIsInstance(form, SelectMultipleFormField)
-        self.assertEqual(form.coerce, item.to_python)
-        self.assertTrue(item.blank)
-        self.assertFalse(form.required)
-        self.assertFalse(item.null)
-        self.assertEqual(form.empty_value, [])
-        self.assertIn(BLANK_CHOICE_DASH[0], form.choices)
