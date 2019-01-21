@@ -80,9 +80,6 @@ class SelectMultipleFormField(fields.MultipleChoiceField):
 
         return ''
 
-    def prepare_value(self, value):
-        return decode_csv_to_list(value)
-
     def widget_attrs(self, widget):
         """
         Given a Widget instance (*not* a Widget class), returns a dictionary of
