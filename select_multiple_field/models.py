@@ -54,6 +54,9 @@ class SelectMultipleField(models.Field):
     def get_internal_type(self):
         return "CharField"
 
+    def get_default(self):
+        return []
+
     def to_python(self, value):
         """
         When SelectMultipleField is assigned a value, this method coerces
